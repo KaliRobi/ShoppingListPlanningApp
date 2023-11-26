@@ -1,4 +1,4 @@
 <template>
-    <h2>Expense Tracker</h2>
+    <h2>Shopping List Planner</h2>
 </template>
 

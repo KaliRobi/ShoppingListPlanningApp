@@ -4,11 +4,11 @@
             <Balance 
             @currentBudget="updateBudget"/>
             <BalanceTracker :spentBudget="+spentBudget" :availableBudget="availableBudget"/>
-            <TransactionList
+            <ItemList
             @transactionDeleted="handleDeleted"
-            :transactions="transactions"/>
-            <AddTransaction
-             @transactionSubmitted="handleSubmitted" />
+            :shoppingItems="shoppingItems"/>
+            <AddItem
+             @shoppingItemSubmitted="handleSubmitted" />
     </div>
 </template>
 
@@ -16,54 +16,61 @@
 import Header from './components/Header.vue';
 import Balance from './components/Balance.vue';
 import BalanceTracker from './components/BalanceTracker.vue';
-import TransactionList from './components/TransactionList.vue';
-import AddTransaction from './components/AddTransaction.vue';
+import ItemList from './components/ItemList.vue';
+import AddItem from './components/AddItem.vue';
 import {ref, computed, onMounted} from 'vue';
 import {useToast} from 'vue-toastification';
 
 const toast = useToast();
-const  transactions= ref([]);
+const  shoppingItems= ref([]);
+const availableBudget = ref('')
 
 
 onMounted(() => {
-    const savedTransaction = JSON.parse(localStorage.getItem('transactions'))
+    const savedTransaction = JSON.parse(localStorage.getItem('shoppingItems'))
     if(savedTransaction){
-        transactions.value = savedTransaction;
+        shoppingItems.value = savedTransaction;
     }
 })
 
 
 const updateBudget = (currentBudget) => {
-    if(transactions.value.length > 0 ){
-   const currentSpendings = transactions.value.reduce((acc, trans) => {
-    return acc + trans.cost }, 0 ).toFixed(2);
-    console.log(parseFloat( currentBudget - currentSpendings ))
-return parseFloat( currentBudget - currentSpendings ) }
-return currentBudget;
+    if(shoppingItems.value.length > 0 ){
+   const currentSpendings = shoppingItems.value.reduce((acc, trans) => {
+    return acc + trans.cost }, 0 );
+
+return assignAvailableBudget(parseFloat( currentBudget - currentSpendings )) }
+return assignAvailableBudget(currentBudget);
 }
+
+const  assignAvailableBudget = (res) => {
+     availableBudget.value = res
+}
+
+
 
 
 //should be the budget - the money still left
 const spentBudget = computed(() => {
-    return  transactions.value
+    return  shoppingItems.value
     .reduce((acc, trans) => {
         return acc + trans.cost;
     }, 0 )
 })
 
-//budget - sum of the transactions
-const availableBudget = updateBudget();
+//budget - sum of the shoppingItems
+
 
 
 // the custom event catched here
 const handleSubmitted = (transactionData) =>{
-        transactions.value.push({
+        shoppingItems.value.push({
             id: generateUniqueId(),
             productName: transactionData.productName,
             amount: transactionData.amount,
             cost : transactionData.cost
         });
-        saveTransactionsToStorage();
+        saveshoppingItemsToStorage();
         toast.success('Transaction added')
 }
 
@@ -72,17 +79,18 @@ const generateUniqueId = () => {
 }
 
 const handleDeleted = (id) => {
-        transactions.value = transactions.value.filter(transaction => 
+    
+        shoppingItems.value = shoppingItems.value.filter(transaction => 
         transaction.id !== id
     )
-    saveTransactionsToStorage();
+    saveShoppingItemsToStorage();
     toast.success('transaction deleted')
 }
 
 
 
-const saveTransactionsToStorage = () => {
-    localStorage.setItem('transactions', JSON.stringify(transactions.value))
+const saveShoppingItemsToStorage = () => {
+    localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems.value))
 }
 
 

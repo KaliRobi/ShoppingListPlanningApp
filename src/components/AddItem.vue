@@ -10,7 +10,7 @@
           <label for="amount"
             >Amount <br />
             (in gramm)</label>
-          <input type="text" id="amount" v-model="amount" placeholder="Enter wight..." />
+          <input type="text" id="amount" v-model="amount" placeholder="Enter weight..." />
         </div>
         <div class="form-control">
           <label for="amount"
@@ -19,7 +19,7 @@
           <input type="text" id="amount" v-model="cost" placeholder="Enter cost..." />
         </div>
       </div>
-        <button class="btn">Add transaction</button>
+        <button class="btn">Add new item</button>
       </form>
 </template>
 
@@ -35,21 +35,21 @@ const toast = useToast()
 // custom event we can emit are defined like this
 //this can passed to this component to another one
 //A custom event pretty much just like 'submit' just custom
-const emit = defineEmits(['transactionSubmitted'])
+const emit = defineEmits(['shoppingItemSubmitted'])
 
 const onSubmit = () =>{
   if(!productName.value || !amount.value || !cost.value){
       toast.error('All fields must be filled');
       return;
   }
-  const transactionData = {
+  const itemData = {
       productName:  productName.value,
       amount: parseInt(amount.value) ,
       cost: parseFloat(cost.value)
   }
 
 // this is what actualy emits the info
-emit('transactionSubmitted', transactionData);
+emit('shoppingItemSubmitted', itemData);
   productName.value = '';
   amount.value = '';
   cost.value = '';
