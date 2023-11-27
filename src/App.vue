@@ -35,7 +35,6 @@ onMounted(() => {
 
 const  assignAvailableBudget = (res) => {
      availableBudget.value = res
-     console.log(availableBudget.value)
 }
 
 const followBudgetChange = (change) => {
@@ -77,16 +76,17 @@ const generateUniqueId = () => {
 
 
 const handleDeleted = (id) => {
-        const costOfDeleted = shoppingItems.value.filter(transaction => 
-        transaction.id === id
-    )
-
+    var deletedCost;
+        shoppingItems.value.forEach( item => {
+            if(item.id == id){
+                deletedCost = item.cost
+            }
+        })
         shoppingItems.value = shoppingItems.value.filter(transaction => 
         transaction.id !== id
     )    
-
-    
-    // followBudgetChange()
+        
+    followBudgetChange(deletedCost)
     saveShoppingItemsToStorage();
     toast.success('transaction deleted')
 }
@@ -97,16 +97,4 @@ const saveShoppingItemsToStorage = () => {
     localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems.value))
 }
 
-
-
-// to register the component 
-// export default{
-//     components:{
-//         Header,
-//         Balance,
-//         IncomeExpenses,
-//         TransactionList,
-//         AddTransaction
-//     },
-// }
 </script>
