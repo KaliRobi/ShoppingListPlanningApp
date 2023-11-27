@@ -13,6 +13,7 @@
     <input type="text" id="text" 
     v-model="budget"
     @input="handleChange(budget)"
+    @click="deleteField"
     placeholder="Today spendings..." />
     </form>
 </div>
@@ -21,7 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const budget  = ref('')
+const budget  = ref()
 const emit = defineEmits(['currentBudget'])
 
 const handleChange = (budget) => {

@@ -3,9 +3,9 @@
     <div class="container">
             <Balance 
             @currentBudget="updateBudget"/>
-            <BalanceTracker :spentBudget="+spentBudget" :availableBudget="availableBudget"/>
+            <BalanceTracker :spentBudget="+spentBudget" :availableBudget="+availableBudget"/>
             <ItemList
-            @transactionDeleted="handleDeleted"
+            @shoppingItemDeleted="handleDeleted"
             :shoppingItems="shoppingItems"/>
             <AddItem
              @shoppingItemSubmitted="handleSubmitted" />
@@ -33,21 +33,20 @@ onMounted(() => {
     }
 })
 
-
-const updateBudget = (currentBudget) => {
-    if(shoppingItems.value.length > 0 ){
-   const currentSpendings = shoppingItems.value.reduce((acc, trans) => {
-    return acc + trans.cost }, 0 );
-
-return assignAvailableBudget(parseFloat( currentBudget - currentSpendings )) }
-return assignAvailableBudget(currentBudget);
-}
-
 const  assignAvailableBudget = (res) => {
      availableBudget.value = res
+     console.log(availableBudget.value)
 }
 
+const followBudgetChange = (change) => {
+    availableBudget.value += change
+}
 
+const updateBudget = (currentBudget) => {
+    const currentSpendings = shoppingItems.value.reduce((acc, trans) => {
+    return acc + trans.cost }, 0 );
+    return assignAvailableBudget(parseFloat( currentBudget - currentSpendings )) 
+}
 
 
 //should be the budget - the money still left
@@ -58,11 +57,8 @@ const spentBudget = computed(() => {
     }, 0 )
 })
 
-//budget - sum of the shoppingItems
 
-
-
-// the custom event catched here
+// the custom event caught here
 const handleSubmitted = (transactionData) =>{
         shoppingItems.value.push({
             id: generateUniqueId(),
@@ -70,7 +66,8 @@ const handleSubmitted = (transactionData) =>{
             amount: transactionData.amount,
             cost : transactionData.cost
         });
-        saveshoppingItemsToStorage();
+        updateBudget(availableBudget.value)
+        saveShoppingItemsToStorage();
         toast.success('Transaction added')
 }
 
@@ -78,11 +75,18 @@ const generateUniqueId = () => {
     return Math.floor(Math.random() * 10000000)
 }
 
+
 const handleDeleted = (id) => {
-    
+        const costOfDeleted = shoppingItems.value.filter(transaction => 
+        transaction.id === id
+    )
+
         shoppingItems.value = shoppingItems.value.filter(transaction => 
         transaction.id !== id
-    )
+    )    
+
+    
+    // followBudgetChange()
     saveShoppingItemsToStorage();
     toast.success('transaction deleted')
 }
