@@ -2,7 +2,7 @@
 <Header />
     <div class="container">
             <Balance 
-            @currentBudget="updateBudget"/>
+            @currentBudget="assignAvailableBudget"/>
             <BalanceTracker :spentBudget="+spentBudget" :availableBudget="+availableBudget"/>
             <ItemList
             @shoppingItemDeleted="handleDeleted"
@@ -23,7 +23,7 @@ import {useToast} from 'vue-toastification';
 
 const toast = useToast();
 const  shoppingItems= ref([]);
-const availableBudget = ref('')
+const availableBudget = ref(0)
 
 
 onMounted(() => {
@@ -41,11 +41,6 @@ const followBudgetChange = (change) => {
     availableBudget.value += change
 }
 
-const updateBudget = (currentBudget) => {
-    const currentSpendings = shoppingItems.value.reduce((acc, trans) => {
-    return acc + trans.cost }, 0 );
-    return assignAvailableBudget(parseFloat( currentBudget - currentSpendings )) 
-}
 
 
 //should be the budget - the money still left
@@ -65,7 +60,7 @@ const handleSubmitted = (transactionData) =>{
             amount: transactionData.amount,
             cost : transactionData.cost
         });
-        updateBudget(availableBudget.value)
+        followBudgetChange(- transactionData.cost)
         saveShoppingItemsToStorage();
         toast.success('Transaction added')
 }
